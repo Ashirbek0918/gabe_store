@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 use function PHPUnit\Framework\returnSelf;
 
-class BasketController extends Controller
+class BasketController extends Controller 
 {
     public function AllBaskets(){
         $baskets = Basket::all();
@@ -62,7 +62,5 @@ class BasketController extends Controller
         return $products;
     }
 
-    public function ax(){
-        return ;
-    }
+    
 }
