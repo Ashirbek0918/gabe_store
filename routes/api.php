@@ -19,6 +19,8 @@ Route::post('/login',[AuthController::class,'login']);
 Route::post('loginEmployee',[AuthController::class,'employeelogin']);
 
 Route::middleware('auth:sanctum')->group(function() {
+    Route::post('/users/logout', [AuthController::class, 'logout']);
+
     //order
     Route::post('Order/create',[OrderController::class,'createOrder']);
     Route::delete('Order/delete/{order}',[OrderController::class,'deleteorder']);
@@ -30,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('Basket/{basket}',[BasketController::class,'basket']);
     Route::delete('Basket/delete/{basket}',[BasketController::class,'delete']);
     Route::put('Basket/update/{basket}',[BasketController::class,'update']);
+    Route::put('Basket/pay/{basket}',[BasketController::class,'pay']);
 
     // employee
     Route::post('create/employee',[AuthController::class,'createemployee']);
@@ -70,12 +73,6 @@ Route::middleware('auth:sanctum')->group(function() {
         Route::get('publishers/archive', 'archive');
         Route::post('publishers/restore', 'restore');
     });
-    // Route::post('create/publisher',[PublisherController::class,'create']);
-    // Route::put('update_publisher{publisher}',[PublisherController::class,'update']);
-    // Route::delete('delete_publisher{publisher}',[PublisherController::class,'delete']);
-    // Route::get('all/publishers',[PublisherController::class,'all']);
-    // Route::get('publishers/archive',[PublisherController::class,'archive']);
-    // Route::post('publishers/restore',[PublisherController::class,'restore']);
 
     //products
     Route::post('create/product',[ProductController::class,'create']);

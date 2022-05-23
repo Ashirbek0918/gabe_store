@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Basket;
-use App\Models\Order;
 use Carbon\Carbon;
+use App\Models\Order;
+use App\Models\Basket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
     public function createOrder(Request $request){
+        $validation = Validator::make($request->all(),[
+            'product_id' =>'required|exists::products,id',
+            'discount' =>'required'
+        ]);
+        if ($validation->fails()) {
+            return ResponseController::error($validation->errors()->first(), 422);
+        }
         $user = $request->user();
         $product_id = $request->product_id;
-        $count = $request->count;
         $discount = $request->discount ?? 0;
         $basket = Basket::where('user_id',$user->id)->where('status','not purchased')->first();
         
@@ -24,14 +31,12 @@ class OrderController extends Controller
             ]);
             Order::create([
                 'basket_id'=>$basket->id,
-                'product_id'=>$product_id,
-                'count'=>$count
+                'product_id'=>$product_id
             ]);
         }else{
             Order::create([
                 'basket_id'=>$basket->id,
-                'product_id'=>$product_id,
-                'count'=>$count
+                'product_id'=>$product_id
             ]);
         }
         return ResponseController::success();

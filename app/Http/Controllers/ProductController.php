@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Comment;
-use App\Models\Developer;
 use App\Models\Genre;
-use App\Models\GenreProduct;
+use App\Models\Comment;
 use App\Models\Product;
+use App\Models\Developer;
 use App\Models\Publisher;
+use App\Models\GenreProduct;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
 class ProductController extends Controller
 {
     
@@ -20,8 +20,32 @@ class ProductController extends Controller
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
         }
+        $validation = Validator::make($request->all(),[
+            'title' =>'required|unique:products,title|max:50',
+            'title_img' =>'required|url',
+            'rating' =>'required|numeric',
+            'first_price' =>'required|numeric',
+            'discount' =>'nullable|numeric',
+            'about' =>'nullable|string',
+            'minimal_system' =>'nullable|json',
+            'recommend_system' =>'nullable|json',
+            'warn' =>'required|numeric',
+            'warn_text' =>'nullable|json',
+            'screenshots' =>'required|json',
+            'trailers' =>'required|json',
+            'language' =>'required|string|max:255',
+            'region_activasion' =>'nullable|string|max:255',
+            'publisher_id' =>'required|exists:publishers,id',
+            'developer_id' =>'required|exists:developers,id',
+            'genre_id' =>'required|exists:genres,id',
+            'platform' =>'required|string',
+            'relaease' =>'required|json'
+        ]);
+        if ($validation->fails()) {
+            return ResponseController::error($validation->errors()->first(), 422);
+        }
         $first_price = $request->first_price;
-        $discaunt = $request->discount;
+        $discaunt = $request->discount ?? 0;
         $second_price = ($first_price - ($first_price * $discaunt / 100));
         $product = Product::where('title', $request->title)->first();
         $genre_ids = $request->genre_id;

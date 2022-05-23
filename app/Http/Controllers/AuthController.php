@@ -2,14 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Employee;
 use Illuminate\Http\Request;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
     public function create (Request $request){
+        $validation = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'email' => 'required|unique:users,email',
+            'password' =>'required|min:8',
+            'profile_photo' =>'required|url' 
+        ]);
+        if ($validation->fails()) {
+            return ResponseController::error($validation->errors()->first(), 422);
+        }
         $name = $request->name;
         $email = $request->email;
         $password = $request->password;
@@ -38,6 +48,12 @@ class AuthController extends Controller
             'token'=>$token 
         ]);
     }
+    public function logout(Request $request)
+    {
+        $request->user()->token()->revoke();
+        return ResponseController::success('You have successfully logged out');
+    }
+
     public function getme (Request $request){
         return $request->user();
     }

@@ -61,4 +61,19 @@ class BasketController extends Controller
         // dd($products);
         return $products;
     }
+
+    public function pay($basket_id){
+        $basket = Basket::find($basket_id);
+        if(!$basket){
+            return ResponseController::error('Basket not found',404);
+        }
+        if($basket->status != 'purchased'){
+            $basket->update([
+                'status' =>'purchased'
+            ]);
+        }else{
+            return ResponseController::error(' Basket already paid');
+        }
+        return ResponseController::success();
+    }
 }

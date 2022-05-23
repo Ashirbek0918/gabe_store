@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('title_img');
             $table->double('rating');
             $table->double('first_price');
-            $table->double('discount');
+            $table->double('discount')->nullable();
             $table->double('second_price');
             $table->mediumText('about');
             $table->json('minimal_system');
