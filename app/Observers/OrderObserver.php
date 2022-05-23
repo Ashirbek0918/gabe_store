@@ -18,17 +18,15 @@ class OrderObserver
         $product = $order->product;
         $order->activation_code = Str::uuid();
         $order->price = $product->first_price;
-        $order->discount = $product->discount;
+        $order->discount = $product->discount ?? 0;
         $order->discount_price = $product->second_price;
     }
     public function created(Order $order)
     {
         $basket = $order->basket;
-        $discount = $basket->discount ?? 0;
         $price = ($order->discount_price)+$basket->price;
         $basket->update([
-            'price'=> $price,
-            'discount_price'=> $price - ($price*$discount/100)
+            'price'=> $price
         ]);
     }
 
@@ -55,7 +53,6 @@ class OrderObserver
         $price = ($basket->price) - $order->price;
         $basket->update([
             'price'=> $price,
-            'discount_price'=> $price - ($price*($basket->discount)/100)
         ]);
 
     }

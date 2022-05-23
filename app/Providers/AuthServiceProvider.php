@@ -34,6 +34,7 @@ class AuthServiceProvider extends ServiceProvider
         Publisher::class=>PublisherPolicy::class,
         Genre::class=>GenrePolicy::class,
         Comment::class=>CommentPolicy::class,
+        Promocode::class=>PromocodePolicy::class,
 
     ];
 

@@ -72,12 +72,21 @@ class AuthController extends Controller
             'token'=>$token
         ]);
     }
-
+    
     public function createemployee(Request $request){
         try{
             $this->authorize('create',Employee::class);
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
+        }
+        $validation = Validator::make($request->all(),[
+            'name' =>'required|unique:employees,name|string|max:255',
+            'phone' =>'required|unique:employees,phone|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            'password' =>'required|min:8',
+            'role' =>'required',
+        ]);
+        if ($validation->fails()) {
+            return ResponseController::error($validation->errors()->first(), 422);
         }
         $phone = $request->phone;
         $employee =  Employee::where('phone',$phone)->first();

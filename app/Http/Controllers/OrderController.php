@@ -12,21 +12,24 @@ class OrderController extends Controller
 {
     public function createOrder(Request $request){
         $validation = Validator::make($request->all(),[
-            'product_id' =>'required|exists::products,id',
-            'discount' =>'required'
+            'product_id' =>'required|exists:products,id',
         ]);
         if ($validation->fails()) {
             return ResponseController::error($validation->errors()->first(), 422);
         }
         $user = $request->user();
         $product_id = $request->product_id;
-        $discount = $request->discount ?? 0;
-        $basket = Basket::where('user_id',$user->id)->where('status','not purchased')->first();
-        
+        $baskets = $user->baskets;
+        foreach ($baskets as $basket){
+            $order = $basket->orders()->where('product_id',$product_id)->first();
+            if($order){
+                return ResponseController::error('This order already exits');
+            }
+        }
+        $basket = $user->baskets()->where('status','not purchased')->first();
         if(!$basket){
             $basket = Basket::create([
                 'user_id'=>$user->id,
-                'discount'=>$request->discount,
                 'ordered_at'=>Carbon::now()
             ]);
             Order::create([

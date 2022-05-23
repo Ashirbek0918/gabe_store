@@ -10,6 +10,7 @@ use App\Http\Controllers\ImageController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PromocodeController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -22,17 +23,17 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::post('/users/logout', [AuthController::class, 'logout']);
 
     //order
-    Route::post('Order/create',[OrderController::class,'createOrder']);
-    Route::delete('Order/delete/{order}',[OrderController::class,'deleteorder']);
+    Route::post('order/create',[OrderController::class,'createOrder']);
+    Route::delete('order/delete/{order}',[OrderController::class,'deleteorder']);
     Route::get('popular/products',[BasketController::class,'Max']);
 
     //basket
     Route::get('allbaskets',[BasketController::class,'AllBaskets']);
-    Route::get('allUserbaskets',[BasketController::class,'Userbaskets']);
-    Route::get('Basket/{basket}',[BasketController::class,'basket']);
-    Route::delete('Basket/delete/{basket}',[BasketController::class,'delete']);
-    Route::put('Basket/update/{basket}',[BasketController::class,'update']);
-    Route::put('Basket/pay/{basket}',[BasketController::class,'pay']);
+    Route::get('alluserbaskets',[BasketController::class,'userbaskets']);
+    Route::get('basket/{basket}',[BasketController::class,'basket']);
+    Route::delete('basket/delete/{basket}',[BasketController::class,'delete']);
+    Route::put('basket/update/{basket}',[BasketController::class,'update']);
+    Route::post('basket/pay/{basket}',[BasketController::class,'pay']);
 
     // employee
     Route::post('create/employee',[AuthController::class,'createemployee']);
@@ -107,4 +108,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('archive/news',[NewsController::class,'archive']);
     Route::post('restore/news',[NewsController::class,'restore']);
     Route::put('news_update/{news}',[NewsController::class,'update']);
+
+    //promocode
+    Route::post('promocode/create',[PromocodeController::class,'create']);
 });
