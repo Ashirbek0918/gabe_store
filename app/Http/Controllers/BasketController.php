@@ -61,6 +61,4 @@ class BasketController extends Controller
         // dd($products);
         return $products;
     }
-
-    
 }
