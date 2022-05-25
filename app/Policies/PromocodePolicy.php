@@ -64,7 +64,7 @@ class PromocodePolicy
      * @param  \App\Models\Promocode  $promocode
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Promocode $promocode)
+    public function delete()
     {
         return Auth::user()->role == 'admin';
     }

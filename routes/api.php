@@ -43,7 +43,7 @@ Route::middleware('auth:sanctum')->group(function() {
 
     //image
     Route::post('upload/image',[ImageController::class,'upload']);
-    Route::delete('image/delete',[ImageController::class,'destroy']);
+    Route::delete('image/delete/{image_name}',[ImageController::class,'destroy']);
     
     //genre
     Route::post('create/genre',[GenreController::class,'create']);
@@ -111,4 +111,7 @@ Route::middleware('auth:sanctum')->group(function() {
 
     //promocode
     Route::post('promocode/create',[PromocodeController::class,'create']);
+    Route::get('all_promocodes',[PromocodeController::class,'allpromocodes']);
+    Route::delete('promocode/delete/{promocode}',[PromocodeController::class,'delete']);
+    Route::put('promocode/update/{promocode}',[PromocodeController::class,'update']);
 });

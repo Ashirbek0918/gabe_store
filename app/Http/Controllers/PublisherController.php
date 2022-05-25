@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Http\Request;
 use App\Models\Publisher;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PublisherController extends Controller
 {
@@ -14,13 +15,14 @@ class PublisherController extends Controller
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
         }
-        $name = $request->name;
-        $publisher = Publisher::where('name',$name)->first();
-        if($publisher){
-            return ResponseController::error('This genre already exists');
+        $validation = Validator::make($request->all(),[
+            'name' =>'required|unique:publishers,name'
+        ]);
+        if ($validation->fails()) {
+            return ResponseController::error($validation->errors()->first(), 422);
         }
-        $publisher= Publisher::create([
-            'name'=>$name
+        Publisher::create([
+            'name'=>$request->name
         ]);
         return ResponseController::success();
     }

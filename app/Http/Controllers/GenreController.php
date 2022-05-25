@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Genre;
-use App\Models\GenreProduct;
 use App\Models\Product;
+use App\Models\GenreProduct;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class GenreController extends Controller
 {
@@ -15,13 +16,14 @@ class GenreController extends Controller
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
         }
-        $name = $request->name;
-        $genre = Genre::where('name',$name)->first();
-        if($genre){
-            return ResponseController::error('This genre already exists');
+        $validation = Validator::make($request->all(),[
+            'name' =>'required|unique:genres,name'
+        ]);
+        if ($validation->fails()) {
+            return ResponseController::error($validation->errors()->first(), 422);
         }
-        $genre = Genre::create([
-            'name'=>$name
+        Genre::create([
+            'name'=>$request->name
         ]);
         return ResponseController::success();
     }

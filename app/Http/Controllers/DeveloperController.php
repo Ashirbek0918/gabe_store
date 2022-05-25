@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Developer;
 use App\Models\Product;
+use App\Models\Developer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class DeveloperController extends Controller
 {
@@ -14,13 +15,14 @@ class DeveloperController extends Controller
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
         }
-        $name = $request->name;
-        $developer = Developer::where('name',$name)->first();
-        if($developer){
-            return ResponseController::error('This developer already exists');
+        $validation = Validator::make($request->all(),[
+            'name' =>'required|unique:developers,name'
+        ]);
+        if ($validation->fails()) {
+            return ResponseController::error($validation->errors()->first(), 422);
         }
-        $developer= Developer::create([
-            'name'=>$name
+        Developer::create([
+            'name'=>$request->name
         ]);
         return ResponseController::success();
     }
