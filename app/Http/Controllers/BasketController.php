@@ -11,12 +11,31 @@ use Illuminate\Http\Request;
 class BasketController extends Controller 
 {
     public function AllBaskets(){
-        //pagnite
-        $baskets = Basket::all();
+        $baskets = Basket::paginate(30);
+        $final = [
+            'last_page'=> $baskets->lastPage(),
+            'baskets'=> [],
+        ];
+
         foreach ($baskets as $basket){
             $basket['orders'] = $basket->orders()->count();
+            $final['baskets'][] = [
+                'id'=> $basket->id,
+                'user'=> [
+                    'id'=> $basket->user_id,
+                    'name'=> $basket->user->name,
+                    'email'=> $basket->user->email,
+                    'point' => $basket->user->point,
+                ],
+                'status'=> $basket->status,
+                'price'=> $basket->price,
+                'discount'=> $basket->discount,
+                'discount_price'=> $basket->discount_price,
+                'ordered_at' => $basket->ordered_at,
+                'orders_count'=> $basket->orders,
+            ];
         }
-        return ResponseController::data($baskets);
+        return ResponseController::data($final);
     }
 
     public function userbaskets(Request $request){
