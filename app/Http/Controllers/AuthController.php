@@ -10,12 +10,12 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function create (Request $request){
+    public function create(Request $request){
         $validation = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|unique:users,email',
             'password' =>'required|min:8',
-            'profile_photo' =>'required|url' 
+            'profile_photo' =>'required|url'
         ]);
         if ($validation->fails()) {
             return ResponseController::error($validation->errors()->first(), 422);
@@ -42,10 +42,10 @@ class AuthController extends Controller
         $user = User::where('email',$email)->first();
         if (!$user OR !Hash::check($password,$user->password)){
             return ResponseController::error('Email or Password incorrect');
-        } 
+        }
         $token = $user->createToken('user')->plainTextToken;
         return ResponseController::data([
-            'token'=>$token 
+            'token'=>$token
         ]);
     }
     public function logout(Request $request)
@@ -58,7 +58,7 @@ class AuthController extends Controller
         return $request->user();
     }
 
-    public function employeelogin(Request $request){
+    public function employeeLogin(Request $request){
         $employee = Employee::where('phone',$request->phone)->first();
         $password = $request->password;
         if(!$employee OR !Hash::check($password,$employee->password)){
@@ -72,8 +72,8 @@ class AuthController extends Controller
             'token'=>$token
         ]);
     }
-    
-    public function createemployee(Request $request){
+
+    public function createEmployee(Request $request){
         try{
             $this->authorize('create',Employee::class);
         }catch(\Throwable $th){
@@ -81,7 +81,7 @@ class AuthController extends Controller
         }
         $validation = Validator::make($request->all(),[
             'name' =>'required|unique:employees,name|string|max:255',
-            'phone' =>'required|unique:employees,phone|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            'phone' =>'required|unique:employees,phone|min:13|max:13',
             'password' =>'required|min:8',
             'role' =>'required',
         ]);
@@ -101,8 +101,8 @@ class AuthController extends Controller
         ]);
         return ResponseController::success('successful');
     }
-     
-    public function destroyemployee(Request $request){
+
+    public function destroyEmployee(Request $request){
         try{
             $this->authorize('delete',Employee::class);
         }catch(\Throwable $th){

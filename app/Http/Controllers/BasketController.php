@@ -8,17 +8,37 @@ use App\Models\Promocode;
 
 use Illuminate\Http\Request;
 
-class BasketController extends Controller 
+class BasketController extends Controller
 {
     public function AllBaskets(){
-        $baskets = Basket::all();
+        $baskets = Basket::paginate(30);
+        $final = [
+            'last_page'=> $baskets->lastPage(),
+            'baskets'=> [],
+        ];
+
         foreach ($baskets as $basket){
             $basket['orders'] = $basket->orders()->count();
+            $final['baskets'][] = [
+                'id'=> $basket->id,
+                'user'=> [
+                    'id'=> $basket->user_id,
+                    'name'=> $basket->user->name,
+                    'email'=> $basket->user->email,
+                    'point' => $basket->user->point,
+                ],
+                'status'=> $basket->status,
+                'price'=> $basket->price,
+                'discount'=> $basket->discount,
+                'discount_price'=> $basket->discount_price,
+                'ordered_at' => $basket->ordered_at,
+                'orders_count'=> $basket->orders,
+            ];
         }
-        return ResponseController::data($baskets);
+        return ResponseController::data($final);
     }
 
-    public function userbaskets(Request $request){
+    public function userBaskets(Request $request){
         $user_id = $request->user()->id;
         $basket = Basket::where('user_id', $user_id)->where('status','not purchased')->first();
         if (!$basket){
@@ -58,7 +78,6 @@ class BasketController extends Controller
 
     public function Max(){
         $products = Order::countBy('product_id')->all();
-        // dd($products);
         return $products;
     }
 
@@ -68,15 +87,18 @@ class BasketController extends Controller
         if(!$basket){
             return ResponseController::error('Basket not found',404);
         }
-        $promocode = Promocode::where('promocode',$request->promocode)->first();
-        if(!$promocode){
+        try {
+           if(!is_null($request->promocode)){
+                $promocode = Promocode::where('promocode',$request->promocode)->firstOrFail();
+                $discount = $promocode->discount;
+                $discount_price = $basket->price - ($basket->price*$discount/100);
+                $promocode->decrement('count');
+                if($promocode->count == 0){
+                    $promocode->delete();
+                }
+           }
+        } catch (\Throwable $th) {
             return ResponseController::error('No such promocode is available or is outdated');
-        }
-        $discount = $promocode->discount;
-        $discount_price = $basket->price - ($basket->price*$discount/100);
-        $promocode->decrement('count');
-        if($promocode->count == 0){
-            $promocode->delete();
         }
         if($basket->status != 'purchased'){
             $user->update([
@@ -88,7 +110,7 @@ class BasketController extends Controller
                 'discount_price' =>$discount_price ?? 0,
             ]);
         }else{
-            return ResponseController::error(' Basket already paid');
+            return ResponseController::error('Basket already paid');
         }
         return ResponseController::data($basket->orders);
     }

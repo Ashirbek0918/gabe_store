@@ -20,13 +20,11 @@ class OrderController extends Controller
         $user = $request->user();
         $product_id = $request->product_id;
         $baskets = $user->baskets;
-        foreach ($baskets as $basket){
-            $order = $basket->orders()->where('product_id',$product_id)->first();
-            if($order){
-                return ResponseController::error('This order already exits');
-            }
-        }
         $basket = $user->baskets()->where('status','not purchased')->first();
+        $order = $basket?->orders()->where('product_id', $product_id)->first();
+        if($order){
+            return ResponseController::error('already exists');
+        }
         if(!$basket){
             $basket = Basket::create([
                 'user_id'=>$user->id,
@@ -51,6 +49,6 @@ class OrderController extends Controller
         }
         $order->delete();
         return ResponseController::success('Order succesfuly deleted');
-    }  
+    }
 }
 
