@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 class BasketController extends Controller 
 {
     public function AllBaskets(){
+        //pagnite
         $baskets = Basket::all();
         foreach ($baskets as $basket){
             $basket['orders'] = $basket->orders()->count();
@@ -80,7 +81,7 @@ class BasketController extends Controller
         }
         if($basket->status != 'purchased'){
             $user->update([
-                'buy_games_number' =>$user->buy_games_number + $basket->orders()->count(),
+                'buy_games_number' =>$user->buy_games_number + $basket->orders()->count(),//add point
             ]);
             $basket->update([
                 'status' =>'purchased',

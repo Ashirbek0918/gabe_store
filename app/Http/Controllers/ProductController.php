@@ -213,6 +213,7 @@ class ProductController extends Controller
 
     public function product_comments(Product $product){
         $comments = $product->comments ;
+        //pag
         if(count($comments) == 0){
             return ResponseController::error('No comments yet');
         }
@@ -256,7 +257,7 @@ class ProductController extends Controller
     }
 
     public function latestadd(){
-        $products = Product::orderBy('created_at','Desc')->get();
+        $products = Product::orderBy('created_at','Desc')->take(10)->get();
         return ResponseController::data($products);
     }
 }

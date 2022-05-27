@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('profile_photo');
+            $table->string('profile_photo')->nullable();
             $table->bigInteger('buy_games_number')->default(0);
             $table->bigInteger('point')->default(0);
             $table->integer('level')->default(1);
