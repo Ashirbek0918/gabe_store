@@ -212,10 +212,16 @@ class ProductController extends Controller
     }
 
     public function product_comments(Product $product){
-        $comments = $product->comments ;
-        //pag
+        $comments = $product->comments()->paginate(30) ;
         if(count($comments) == 0){
             return ResponseController::error('No comments yet');
+        }
+        $final = [
+            'last_page'=> $comments->lastPage(),
+            'comments'=> [],
+        ];
+        foreach ($comments as $comment){
+
         }
         return ResponseController::data($comments,200);
     }

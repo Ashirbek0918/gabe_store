@@ -16,7 +16,6 @@ class BasketController extends Controller
             'last_page'=> $baskets->lastPage(),
             'baskets'=> [],
         ];
-
         foreach ($baskets as $basket){
             $basket['orders'] = $basket->orders()->count();
             $final['baskets'][] = [
@@ -88,19 +87,23 @@ class BasketController extends Controller
         if(!$basket){
             return ResponseController::error('Basket not found',404);
         }
-        $promocode = Promocode::where('promocode',$request->promocode)->first();
-        if(!$promocode){
+        try {
+           if(!is_null($request->promocode)){
+                $promocode = Promocode::where('promocode',$request->promocode)->firstOrFail();
+                $discount = $promocode->discount;
+                $discount_price = $basket->price - ($basket->price*$discount/100);
+                $promocode->decrement('count');
+                if($promocode->count == 0){
+                    $promocode->delete();
+                }
+           }
+        } catch (\Throwable $th) {
             return ResponseController::error('No such promocode is available or is outdated');
-        }
-        $discount = $promocode->discount;
-        $discount_price = $basket->price - ($basket->price*$discount/100);
-        $promocode->decrement('count');
-        if($promocode->count == 0){
-            $promocode->delete();
         }
         if($basket->status != 'purchased'){
             $user->update([
-                'buy_games_number' =>$user->buy_games_number + $basket->orders()->count(),//add point
+                'buy_games_number' =>$user->buy_games_number + $basket->orders()->count(),
+                'point'=>$user->point + 25
             ]);
             $basket->update([
                 'status' =>'purchased',
@@ -108,7 +111,7 @@ class BasketController extends Controller
                 'discount_price' =>$discount_price ?? 0,
             ]);
         }else{
-            return ResponseController::error(' Basket already paid');
+            return ResponseController::error('Basket already paid');
         }
         return ResponseController::data($basket->orders);
     }
