@@ -115,7 +115,6 @@ class ProductController extends Controller
                 'comments' =>$comments
             ];
             foreach ($item->genre as $item) {
-                // return $item;
                 $genre = Genre::where('id', $item->genre_id)->first(['id', 'name']);
                 if ($genre) {
                     $temp['genre'][] = $genre;

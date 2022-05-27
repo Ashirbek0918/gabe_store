@@ -25,7 +25,7 @@ class OrderController extends Controller
             if($order){
                 return ResponseController::error('This order already exits');
             }
-        }
+        }   
         $basket = $user->baskets()->where('status','not purchased')->first();
         if(!$basket){
             $basket = Basket::create([

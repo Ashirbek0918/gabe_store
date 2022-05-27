@@ -69,6 +69,7 @@ class AuthController extends Controller
             'employee_id'=>$employee->id,
             'name'=>$employee->name,
             'phone'=>$employee->phone,
+            'role' =>$employee->role,
             'token'=>$token
         ]);
     }
