@@ -16,6 +16,9 @@ return new class extends Migration
         Schema::create('publishers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('image');
+            $table->string('logo_img');
+            $table->mediumText('description');
             $table->timestamps();
             $table->softDeletes();
             

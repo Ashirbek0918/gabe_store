@@ -6,6 +6,7 @@ use App\Http\Controllers\CommentsController;
 use App\Http\Controllers\GenreController;
 use App\Http\Controllers\PublisherController;
 use App\Http\Controllers\DeveloperController;
+use App\Http\Controllers\FavouriteController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\OrderController;
@@ -20,7 +21,11 @@ Route::post('/login',[AuthController::class,'login']);
 Route::post('loginEmployee',[AuthController::class,'employeelogin']);
 
 Route::middleware('auth:sanctum')->group(function() {
-    Route::post('/users/logout', [AuthController::class, 'logout']);
+    //users
+    Route::post('users/logout', [AuthController::class, 'logout']);
+    Route::get('users',[AuthController::class,'allUsers']);
+    Route::get('user/{user}',[AuthController::class,'singleUser']);
+    Route::get('orderbyPoint',[AuthController::class,'orderbyPoint']);
 
     //order
     Route::post('order/create',[OrderController::class,'createOrder']);
@@ -87,7 +92,10 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::put('product_update/{product}',[ProductController::class,'update']);
     Route::get('product/{product}/comments',[ProductController::class,'product_comments']);
     Route::get('product/{product}',[ProductController::class,'product']);
-    Route::get('priceby',[ProductController::class,'latestadd']);
+    Route::get('latestAdd',[ProductController::class,'latestAdd']);
+    Route::get('orderByDiscount',[ProductController::class,'orderByDiscount']);
+    Route::get('orderByRating',[ProductController::class,'orderByRating']);
+    Route::get('orderBycount',[ProductController::class,'orderBycount']);
 
     //comments
     Route::post('create/comment',[CommentsController::class,'create']);
@@ -114,4 +122,9 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('all_promocodes',[PromocodeController::class,'allpromocodes']);
     Route::delete('promocode/delete/{promocode}',[PromocodeController::class,'delete']);
     Route::put('promocode/update/{promocode}',[PromocodeController::class,'update']);
+
+    //favourites
+    Route::post('favourite/create',[FavouriteController::class,'create']);
+    Route::delete('favourite/delete/{product_id}',[FavouriteController::class,'delete']);
+    Route::get('favourites',[FavouriteController::class,'favourites']);
 });

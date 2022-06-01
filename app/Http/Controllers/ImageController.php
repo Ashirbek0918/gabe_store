@@ -18,23 +18,21 @@ class ImageController extends Controller
         }
         $image_url = [];
         $images = $request->file('images');
-        if ($request->hasFile('images')){
-            foreach($images as $image){
-                if(!$image){
-                    return ResponseController::error('image not found');
-                }
-                $image_name = time()."_".Str::random(10).".".$image->getClientOriginalExtension();
-                $image->move('Images',$image_name);
-                $image_url[] = env('APP_URL')."/images/".$image_name;
-            }
-        }else{
-            return ResponseController::error('None uploaded file');
+        if(!is_array($images)){
+            $image_name = time()."_".Str::random(10).".".$images->getClientOriginalExtension();
+            $images->move('Images',$image_name);
+            $image_url[] = env('APP_URL')."/images/".$image_name;
+        }
+        foreach($images as $image){
+            $image_name = time()."_".Str::random(10).".".$image->getClientOriginalExtension();
+            $image->move('Images',$image_name);
+            $image_url[] = env('APP_URL')."/images/".$image_name;
         }
         return $image_url;
     }
     public function destroy($fileName)
     {
-        $path = storage_path('app/public/images/'.$fileName);
+        $path = public_path('/images/'.$fileName);
         if (!$path) {
             return ResponseController::error('Image does not exist');
         }

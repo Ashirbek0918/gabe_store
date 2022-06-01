@@ -19,8 +19,8 @@ class OrderController extends Controller
         }
         $user = $request->user();
         $product_id = $request->product_id;
-        $baskets = $user->baskets;
-        foreach ($baskets as $basket){
+        $basket = $user->baskets()->where('status','not purchased')->first();
+        if($basket){
             $order = $basket->orders()->where('product_id',$product_id)->first();
             if($order){
                 return ResponseController::error('This order already exits');
@@ -42,7 +42,7 @@ class OrderController extends Controller
                 'product_id'=>$product_id
             ]);
         }
-        return ResponseController::success();
+        return ResponseController::success('Order succesfuly created',201);
     }
     public function deleteorder($order_id){
         $order = Order::find($order_id);

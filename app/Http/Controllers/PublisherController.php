@@ -16,15 +16,21 @@ class PublisherController extends Controller
             return ResponseController::error('You Are not allowed');
         }
         $validation = Validator::make($request->all(),[
-            'name' =>'required|unique:publishers,name'
+            'name' =>'required|unique:publishers,name',
+            'image' =>'required|url',
+            'logo_img' =>'required|url',
+            'description' =>'required|string'
         ]);
         if ($validation->fails()) {
             return ResponseController::error($validation->errors()->first(), 422);
         }
         Publisher::create([
-            'name'=>$request->name
+            'name'=>$request->name,
+            'image' =>$request->image,
+            'logo_img' =>$request->logo_img,
+            'description' =>$request->description,
         ]);
-        return ResponseController::success();
+        return ResponseController::success('Publisher succesfuly created',201);
     }
     public function update(Request $request,Publisher $publisher){
         try{

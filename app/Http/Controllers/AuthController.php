@@ -34,8 +34,9 @@ class AuthController extends Controller
             'password'=>Hash::make($password),
             'profile_photo'=>$profile_photo
         ]);
-        return ResponseController::success();
+        return ResponseController::success('Succesfuly',201);
     }
+
     public function login(Request $request){
         $email = $request->email;
         $password = $request->password;
@@ -48,9 +49,10 @@ class AuthController extends Controller
             'token'=>$token 
         ]);
     }
+
     public function logout(Request $request)
     {
-        $request->user()->token()->revoke();
+        $request->user()->currentAccessToken()->delete();
         return ResponseController::success('You have successfully logged out');
     }
 
@@ -82,25 +84,20 @@ class AuthController extends Controller
         }
         $validation = Validator::make($request->all(),[
             'name' =>'required|unique:employees,name|string|max:255',
-            'phone' =>'required|unique:employees,phone|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            'phone' =>'required|unique:employees,phone|min:10',
             'password' =>'required|min:8',
             'role' =>'required',
         ]);
         if ($validation->fails()) {
             return ResponseController::error($validation->errors()->first(), 422);
         }
-        $phone = $request->phone;
-        $employee =  Employee::where('phone',$phone)->first();
-        if($employee){
-            return ResponseController::error('This employee already exits');
-        }
-        $employee = Employee::create([
+        Employee::create([
             'name'=>$request->name,
-            'phone'=>$phone,
+            'phone'=>$request->phone,
             'password'=>Hash::make($request->password),
             'role'=>$request->role
         ]);
-        return ResponseController::success('successful');
+        return ResponseController::success('successful',201);
     }
      
     public function destroyemployee(Request $request){
@@ -113,6 +110,7 @@ class AuthController extends Controller
         if(!$employee){
             return ResponseController::error('Employee not found',404);
         }
+        $employee->delete();
         return ResponseController::success('sucessful');
     }
 
@@ -122,6 +120,15 @@ class AuthController extends Controller
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
         }
+        $validation = Validator::make($request->all(),[
+            'name' =>'required|unique:employees,name|string|max:255',
+            'phone' =>'required|unique:employees,phone|min:10',
+            'password' =>'required|min:8',
+            'role' =>'required',
+        ]);
+        if ($validation->fails()) {
+            return ResponseController::error($validation->errors()->first(), 422);
+        }
         $employee = Employee::find($request->employee_id);
         if (!$employee) {
             return ResponseController::error('Employee not found', 404);
@@ -129,4 +136,42 @@ class AuthController extends Controller
         $employee->update($request->all());
         return ResponseController::success('successful', 200);
     }
+
+    public function allUsers(){
+        $users = User::paginate(10);
+        $final = [
+            'last_page' =>$users->lastPage(),
+            'users' => [],
+        ];
+        foreach ($users as $user){ 
+            $final['users'][] = [
+                'id'=>$user->id,
+                'name'=>$user->name,
+                'profile_photo'=>$user->profile_photo,
+                'point' =>$user->point,
+                'level'=>$user->level,
+                'comments' =>$user->comments()->count(),
+            ];
+            $user['comments'] = $user->comments()->count();
+        }
+    
+        return ResponseController::data($final);
+    }
+
+    public function orderbyPoint(Request $request){
+        $final = [];
+        $user = $request->user();
+        $users = User::orderBy('point','Desc')->take(10)->get(['id','name','profile_photo','point','level']);
+        $final['user'] = $user;
+        $final['users'] = $users;
+        return ResponseController::data($final);
+    }
+
+    public function singleUser($user_id){
+        $user = User::find($user_id);
+        if(!$user){
+            return ResponseController::error('User not found',404);
+        }
+        return ResponseController::data($user);
+     }
 }

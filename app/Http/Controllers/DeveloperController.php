@@ -16,15 +16,19 @@ class DeveloperController extends Controller
             return ResponseController::error('You Are not allowed');
         }
         $validation = Validator::make($request->all(),[
-            'name' =>'required|unique:developers,name'
+            'name' =>'required|unique:developers,name',
+            'image' =>'required|url',
+            'logo_img' =>'required|url',
         ]);
         if ($validation->fails()) {
             return ResponseController::error($validation->errors()->first(), 422);
         }
         Developer::create([
-            'name'=>$request->name
+            'name'=>$request->name,
+            'image' =>$request->image,
+            'logo_img' =>$request->logo_img,
         ]);
-        return ResponseController::success();
+        return ResponseController::success('Developer succesfuly created',201);
     }
     public function update(Request $request,Developer $developer){
         try{
@@ -32,10 +36,15 @@ class DeveloperController extends Controller
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
         }
-        $name = $request->name;
-        $developer->update([
-            'name'=>$name
+        $validation = Validator::make($request->all(),[
+            'name' =>'required|unique:developers,name',
+            'image' =>'required|url',
+            'logo_img' =>'required|url',
         ]);
+        if ($validation->fails()) {
+            return ResponseController::error($validation->errors()->first(), 422);
+        }
+        $developer->update($request->all());
         return ResponseController::success();
     }
     public function delete (Developer $developer){
@@ -72,8 +81,8 @@ class DeveloperController extends Controller
         return ResponseController::success();
     }
     public function all(){
-        $data = Developer::all();
-        if(count($data)==0){
+        $data = Developer::get(['id','image','logo_img']);
+        if(empty($data)){
             return ResponseController::error('No developers yet');
         }
         foreach ($data as $developer){

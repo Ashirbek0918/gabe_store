@@ -25,28 +25,39 @@ class GenreController extends Controller
         Genre::create([
             'name'=>$request->name
         ]);
-        return ResponseController::success();
+        return ResponseController::success('Succesfuly',201);
     }
-    public function update(Genre $genre,Request $request){
+    public function update($genre,Request $request){
         try{
             $this->authorize('update',Genre::class);
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
         }
         $name = $request->name;
+        $genre= Genre::find($genre);
         if(!$genre){
             return ResponseController::error('Genre not found',404);
+        }
+        $validation = Validator::make($request->all(),[
+            'name' =>'required|unique:genres,name'
+        ]);
+        if ($validation->fails()) {
+            return ResponseController::error($validation->errors()->first(), 422);
         }
         $genre->update([
             'name'=>$name
         ]);
         return ResponseController::success();
     }
-    public function delete (Genre $genre){
+    public function delete ($genre){
         try{
             $this->authorize('delete',Genre::class);
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
+        }
+        $genre = Genre::find($genre);
+        if(!$genre){
+            return ResponseController::error('Genre not found',404);
         }
         $genre->genreProduct()->delete();
         $genre->delete();
@@ -58,7 +69,7 @@ class GenreController extends Controller
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
         }
-        $devs = Genre::onlyTrashed()->get();
+        $devs = Genre::onlyTrashed()->orderBy('deleted_at','Desc')->get();
         if(count($devs)==0){
             return ResponseController::error('No deleted genres');
         }
@@ -82,10 +93,15 @@ class GenreController extends Controller
         if(count($data)==0){
             return ResponseController::error('No genres yet',404);
         }
+        $final = [];
         foreach ($data as $genre){
             $products = $genre->genreproduct()->count();
-            $genre['products'] = $products;
+            $final['genres'][]= [
+                'id' =>$genre->id,
+                'name' =>$genre->name,
+                'products' =>$products
+            ];
         }
-        return ResponseController::data($data);
+        return ResponseController::data($final);
     }
 }

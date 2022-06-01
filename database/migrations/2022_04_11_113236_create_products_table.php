@@ -37,6 +37,7 @@ return new class extends Migration
             $table->foreignIdFor(Developer::class);
             $table->json('relaease');
             $table->string('platform');
+            $table->bigInteger('buy_count')->default(0);
             $table->timestamps();
             $table->softDeletes();
 

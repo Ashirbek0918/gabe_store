@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
-use App\Models\Basket;
+use App\Models\User;
 use App\Models\Order;
-use App\Observers\BasketObserver;
+use App\Models\Basket;
+use App\Observers\UserObserver;
 use App\Observers\OrderObserver;
+use App\Observers\BasketObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -29,5 +31,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Order::observe(OrderObserver::class);
         Basket::observe(BasketObserver::class);
+        User::observe(UserObserver::class);
     }
 }

@@ -14,7 +14,7 @@ class ResponseController extends Controller
             'message'=>$message
         ], $code);
     }
-    public static function success($message = 'successful', $code = 422){
+    public static function success($message = 'successful', $code = 200){
         return response([
             'message'=>$message
         ], $code);
