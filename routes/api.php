@@ -73,7 +73,7 @@ Route::middleware('auth:sanctum')->group(function() {
     //publisher
     Route::controller( PublisherController::class)->group(function () {
         Route::post('create/publisher', 'create');
-        Route::put('update_publisher{publisher}', 'update');
+        Route::put('update_publisher/{publisher}', 'update');
         Route::delete('delete_publisher/{publisher}', 'delete');
         Route::get('all/publishers', 'all');
         Route::get('publishers/archive', 'archive');

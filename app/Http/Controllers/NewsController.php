@@ -78,7 +78,7 @@ class NewsController extends Controller
         return ResponseController::data($final);
     }
 
-   public function destroy($news){
+    public function destroy($news){
         try{
             $this->authorize('delete',News::class);
         }catch(\Throwable $th){
@@ -113,7 +113,11 @@ class NewsController extends Controller
             return ResponseController::error('You Are not allowed');
         }
         $id = $request->id;
-        News::withTrashed()->where('id',$id)->restore();
+        $news = News::onlyTrashed()->where('id',$id)->restore();
+        if(!$news){
+            return ResponseController::error('Deleted news not found',404);
+        }
+        $news->restore();
         Comment::withTrashed()->where('news_id')->restore();
         return ResponseController::success('successful',200);
     }

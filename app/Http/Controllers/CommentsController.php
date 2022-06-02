@@ -111,10 +111,11 @@ class CommentsController extends Controller
 
     public function restore(Request $request){
         $id = $request->comment_id;
-        $comment = Comment::withTrashed()->where('id',$id)->restore();
+        $comment = Comment::onlyTrashed()->where('id',$id)->first();
         if(!$comment){
             return ResponseController::error('comment not found');
         }
+        $comment->restore();
         return ResponseController::success('successful',200);
     }
 

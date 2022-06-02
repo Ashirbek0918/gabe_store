@@ -30,6 +30,7 @@ class ImageController extends Controller
         }
         return $image_url;
     }
+    
     public function destroy($fileName)
     {
         $path = public_path('/images/'.$fileName);

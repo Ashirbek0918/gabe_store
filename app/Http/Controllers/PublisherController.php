@@ -32,28 +32,45 @@ class PublisherController extends Controller
         ]);
         return ResponseController::success('Publisher succesfuly created',201);
     }
-    public function update(Request $request,Publisher $publisher){
+    
+    public function update(Request $request,$publisher){
         try{
             $this->authorize('update',Publisher::class);
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
         }
-        $name = $request->name;
-        $publisher->update([
-            'name'=>$name
+        $publisher = Publisher::find($publisher);
+        if(!$publisher){
+            return ResponseController::error('Publisher not found',404);
+        }
+        $validation = Validator::make($request->all(),[
+            'name' =>'required|unique:publishers,name',
+            'image' =>'required|url',
+            'logo_img' =>'required|url',
+            'description' =>'required|string'
         ]);
+        if ($validation->fails()) {
+            return ResponseController::error($validation->errors()->first(), 422);
+        }
+        $publisher->update($request->all());
         return ResponseController::success();
     }
-    public function delete (Publisher $publisher){
+
+    public function delete ($publisher){
         try{
             $this->authorize('delete',Publisher::class);
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
         }
+        $publisher = Publisher::find($publisher);
+        if(!$publisher){
+            return ResponseController::error('Publisher not found',404);
+        }
         $publisher->products()->delete();
         $publisher->delete();
         return ResponseController::success();
     }
+
     public function archive(){
         try{
             $this->authorize('view',Publisher::class);
@@ -74,13 +91,17 @@ class PublisherController extends Controller
             return ResponseController::error('You Are not allowed');
         }
         $id = $request->id;
-        Publisher::withTrashed()->where('id',$id)->restore();
+        $publisher = Publisher::onlyTrashed()->where('id',$id)->first();
+        if(!$publisher){
+            return ResponseController::error('Deleted publisher not found',404);
+        }
+        $publisher->restore();
         Product::withTrashed()->where('publisher_id',$id)->restore();
         return ResponseController::success();
     }
 
     public function all(){
-        $data = Publisher::all();
+        $data = Publisher::get(['id','name','image','logo_img']);
         if(count($data)==0){
             return ResponseController::error('No publishers yet');
         }

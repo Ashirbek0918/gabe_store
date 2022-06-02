@@ -27,6 +27,7 @@ class GenreController extends Controller
         ]);
         return ResponseController::success('Succesfuly',201);
     }
+    
     public function update($genre,Request $request){
         try{
             $this->authorize('update',Genre::class);
@@ -49,6 +50,7 @@ class GenreController extends Controller
         ]);
         return ResponseController::success();
     }
+
     public function delete ($genre){
         try{
             $this->authorize('delete',Genre::class);
@@ -63,6 +65,7 @@ class GenreController extends Controller
         $genre->delete();
         return ResponseController::success();
     }
+
     public function archive(){
         try{
             $this->authorize('view',Genre::class);
@@ -83,7 +86,11 @@ class GenreController extends Controller
             return ResponseController::error('You Are not allowed');
         }
         $id = $request->id;
-        Genre::withTrashed()->where('id',$id)->restore();
+        $genre = Genre::onlyTrashed()->where('id',$id)->first();
+        if(is_null($genre)){
+            return ResponseController::error('Deleted genre not found',404);
+        }
+        $genre->restore();
         GenreProduct::withTrashed()->where('genre_id',$id)->restore();
         return ResponseController::success('successful',200);
     }

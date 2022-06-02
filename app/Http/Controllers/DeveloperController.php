@@ -30,11 +30,15 @@ class DeveloperController extends Controller
         ]);
         return ResponseController::success('Developer succesfuly created',201);
     }
-    public function update(Request $request,Developer $developer){
+    public function update($developer,Request $request){
         try{
             $this->authorize('update',Developer::class);
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
+        }
+        $developer = Developer::find($developer);
+        if(!$developer){
+            return ResponseController::error('Developer not found',404);
         }
         $validation = Validator::make($request->all(),[
             'name' =>'required|unique:developers,name',
@@ -44,14 +48,19 @@ class DeveloperController extends Controller
         if ($validation->fails()) {
             return ResponseController::error($validation->errors()->first(), 422);
         }
+        
         $developer->update($request->all());
         return ResponseController::success();
     }
-    public function delete (Developer $developer){
+    public function delete ($developer){
         try{
             $this->authorize('delete',Developer::class);
         }catch(\Throwable $th){
             return ResponseController::error('You Are not allowed');
+        }
+        $developer = Developer::find($developer);
+        if(!$developer){
+            return ResponseController::error('Developer not found',404);
         }
         $developer->products()->delete();
         $developer->delete();
@@ -76,7 +85,11 @@ class DeveloperController extends Controller
             return ResponseController::error('You Are not allowed');
         }
         $id = $request->id;
-        Developer::withTrashed()->where('id',$id)->restore();
+        $developer = Developer::onlyTrashed()->where('id',$id)->first();
+        if(!$developer){
+            return ResponseController::error('Deleted developer not found',404);
+        }
+        $developer->restore();
         Product::withTrashed()->where('developer_id',$id)->restore();
         return ResponseController::success();
     }

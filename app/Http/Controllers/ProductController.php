@@ -148,7 +148,7 @@ class ProductController extends Controller
 
     public function developer_id($developer_id)
     {
-        $developer = Developer::find($developer_id)->get();
+        $developer = Developer::find($developer_id);
         if(! $developer){
             return ResponseController::error('Developer not found',404);
         }
@@ -162,7 +162,7 @@ class ProductController extends Controller
 
     public function publisher_id($publisher_id)
     {
-        $publisher = Publisher::find($publisher_id)->get();
+        $publisher = Publisher::find($publisher_id);
         if(! $publisher){
             return ResponseController::error('Publisher not found',404 );
         }
@@ -208,7 +208,11 @@ class ProductController extends Controller
             return ResponseController::error('You Are not allowed');
         }
         $id = $request->id;
-        Product::withTrashed()->where('id', $id)->restore();
+        $product = Product::onlyTrashed()->where('id', $id)->first();
+        if(!$product){
+            return ResponseController::error('Deleted product not found',404);
+        }
+        $product->restore();
         Comment::withTrashed()->where('product_id', $id)->restore();
         return ResponseController::success('successful', 200);
     }
